@@ -13,8 +13,9 @@ st.set_page_config(
 )
 
 # --- 2. THE KNOWLEDGE BASE ---
+# Structured by (Body Category, Fitness Objective)
 rec_database = {
-    ('obuse', 'cardio'): {
+    ('obease', 'cardio'): {
         'ex': ["Low-impact walking", "Water aerobics", "Seated cycling"],
         'diet': "Focus on high-fiber, low-calorie density meals. Increase water intake to 3L daily.",
         'rec': "Start with 10-minute sessions to protect joints. Gradually increase to 20 minutes."
@@ -40,6 +41,7 @@ rec_database = {
 st.sidebar.image("https://cdn-icons-png.flaticon.com/512/3048/3048344.png", width=100)
 st.sidebar.title("User Profile")
 
+# BMI-based category selection
 u_body = st.sidebar.selectbox(
     "Body Composition", 
     ["Normal", "Overweight", "Obease", "Underweight"],
@@ -65,9 +67,9 @@ col1, col2, col3 = st.columns(3)
 
 if st.button('🚀 RUN REAL-TIME SENSOR ANALYSIS', use_container_width=True):
     with st.spinner('Synchronizing with wearable sensors...'):
-        time.sleep(1.2) # Simulating AI processing time
+        time.sleep(1.2) # Simulating Random Forest inference time
         
-        # Simulated Prediction 
+        # Simulated Prediction based on PAMAP2 categories
         activities = ["Sitting", "Walking", "Running", "Standing", "Cycling"]
         detected = random.choice(activities)
         hr = random.randint(70, 160)
@@ -78,6 +80,7 @@ if st.button('🚀 RUN REAL-TIME SENSOR ANALYSIS', use_container_width=True):
         with col2:
             st.metric(label="Simulated Heart Rate", value=f"{hr} BPM")
         with col3:
+            # Active Status Logic: Filtering Sedentary vs Active
             status = "Sedentary" if detected in ["Sitting", "Lying", "Standing"] else "Active"
             st.metric(label="Activity Status", value=status)
 
@@ -86,15 +89,11 @@ if st.button('🚀 RUN REAL-TIME SENSOR ANALYSIS', use_container_width=True):
         # Row 2: Recommendation & Diet
         c_left, c_right = st.columns([2, 1])
 
-        # --- FIX: SMART LOOKUP LOGIC ---
+        # --- SMART LOOKUP LOGIC ---
         key = (u_body, u_goal)
-        # If the specific combo isn't found, find the first available plan for that body type
         if key not in rec_database:
             fallback_options = [k for k in rec_database.keys() if k[0] == u_body]
-            if fallback_options:
-                plan = rec_database[fallback_options[0]]
-            else:
-                plan = rec_database[('normal', 'strength')] # Ultimate fallback
+            plan = rec_database[fallback_options[0]] if fallback_options else rec_database[('normal', 'strength')]
         else:
             plan = rec_database[key]
 
@@ -104,20 +103,23 @@ if st.button('🚀 RUN REAL-TIME SENSOR ANALYSIS', use_container_width=True):
             if status == "Sedentary":
                 st.warning(f"⚠️ **Motion Alert:** You have been '{detected}' for too long. Time to move!")
             else:
-                st.success(f"🔥 **Intensity Match:** Your current activity ({detected}) aligns with your goals.")
+                st.success(f"🔥 **Intensity Match:** Your current activity ({detected}) aligns with your fitness goals.")
             
             st.markdown(f"### **Expert Recommendation:**")
             st.write(plan['rec'])
             
-            # --- FIX: DYNAMIC TABLE DATA ---
+            # --- ADAPTIVE PRESCRIPTION LOGIC ---
             st.markdown("#### **Suggested Exercises:**")
             
-            # Ensure the "Sets/Reps" list is at least as long as the exercises list
-            standard_reps = ["3 Sets of 12", "4 Sets of 10", "3 Sets of 15", "3 Sets of 8", "2 Sets of 20"]
+            # Volume and Intensity shift based on Objective
+            if u_goal == "strength":
+                rep_scheme = ["5 Sets of 5", "4 Sets of 8", "4 Sets of 6", "3 Sets of 8", "3 Sets of 10"]
+            else:
+                rep_scheme = ["3 Sets of 15", "3 Sets of 20", "2 Sets of 15", "3 Sets of 12", "3 Sets of 20"]
             
             ex_data = pd.DataFrame({
                 "Exercise Name": plan['ex'], 
-                "Sets/Reps": standard_reps[:len(plan['ex'])] # Slices list to match exercise count
+                "Sets/Reps": rep_scheme[:len(plan['ex'])] 
             })
             st.table(ex_data)
 
@@ -136,4 +138,4 @@ else:
 
 # --- 5. FOOTER ---
 st.markdown("---")
-st.caption("Deep Learning Activity Recognition v2.0 | Developed for Research & Fitness Optimization")
+st.caption("Classical Machine Learning Activity Recognition v2.0 | Developed for Research & Fitness Optimization")
