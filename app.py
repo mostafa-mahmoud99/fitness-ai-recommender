@@ -42,7 +42,7 @@ st.sidebar.title("User Profile")
 
 u_body = st.sidebar.selectbox(
     "Body Composition", 
-    ["Normal", "Overweight", "Obuse", "Underweight"],
+    ["Normal", "Overweight", "Obease", "Underweight"],
     help="Select the category that best matches your current BMI/Profile."
 ).lower()
 
